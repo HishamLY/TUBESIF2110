@@ -45,35 +45,35 @@ F.S. Menulis skill sesuai no*/
     }
     if (no==2)
     {
-        printf("2. Add +1 STR\n");
+        printf("2. Add +5 STR\n");
     }
     if (no==3)
     {
-        printf("3. Add +1 DEF\n");
+        printf("3. Add +5 DEF\n");
     }
     if (no==4)
     {
-        printf("4. Reveals One enemy move per turn\n");
+        printf("4. Add +8 STR\n");
     }
     if (no==5)
     {
-        printf("5. Add +5 Max HP\n");
-    }
-    if (no==6)
-    {
-        printf("6. Add +5 Max HP\n");
+        printf("5. Add +30 Max HP\n");
     }
     if (no==7)
     {
-        printf("7. Reveals One enemy move per turn\n");
+        printf("6. Add +50 Max HP\n");
+    }
+    if (no==6)
+    {
+        printf("7. Add +8 DEF\n");
     }
     if (no==8)
     {
-        printf("8. Add +2 STR\n");
+        printf("8. Add +10 STR\n");
     }
     if (no==9)
     {
-        printf("9. Add +2 DEF\n");
+        printf("9. Add +10 DEF\n");
     }
 }
 
@@ -250,23 +250,21 @@ F.S. Menampilkan interface pengambilan skill.
     AmbilSkill(T,no,P1);
     switch(no)
     {
-        case 2 : {STR(*P1)++;
+        case 2 : {STR(*P1)+=5;
                  break;}
-        case 3 : {DEF(*P1)++;
+        case 3 : {DEF(*P1)+=5;
                  break;}
-        case 4 : {MaxHP(*P1)=MaxHP(*P1)+15;
+        case 4 : {STR(*P1)+=8;
                  break;}
-        case 5 : {STR(*P1)=STR(*P1)+2;
+        case 5 : {MaxHP(*P1)+=30;
                  break;}
-        case 6 : {DEF(*P1)=DEF(*P1)+2;
+        case 6 : {DEF(*P1)+=8;
                  break;}
-        case 7 : {MaxHP(*P1)=MaxHP(*P1)+20;
+        case 7 : {MaxHP(*P1)+=50;
                  break;}
-        case 8 : {STR(*P1)=STR(*P1)+5;
-                 DEF(*P1)=DEF(*P1)+3;
+        case 8 : {STR(*P1)+=10;
                  break;}
-        case 9 : {STR(*P1)=STR(*P1)+3;
-                 DEF(*P1)=DEF(*P1)+5;
+        case 9 : {DEF(*P1)+=10;
                  break;}
     } 
  }
