@@ -9,6 +9,7 @@
 #include <time.h>
 
 //Modul ADT, Mesin, serta modul lainnya yang digunakan
+#include "Map.h"
 #include "mainmenu.h"
 #include "mesinkar.h"
 #include "tipedata.h"
@@ -19,8 +20,6 @@
 #include "Skilltree.h"
 #include "battle.h"
 #include "bintree.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 boolean WinFlag=false;
 char MSG[1000];
@@ -172,7 +171,7 @@ void TulisMap(Maps M,Player P)
 }
 }
 
-void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
+void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Enemy)
 {
 	clrscr();
 	char A,B;
@@ -271,11 +270,14 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
 				boolean Win;
 				Queue Q;
         		StackQ SQ;
-				CreateMonster(&Mon,"MOMO",1,0);
+				if (!IsEmptyS(*Enemy))
+				{
+					Pop(Enemy,&Mon);
+				}
     			CreateEmpty(&Q,40);
     			CreateEmptySQ(&SQ);
     			makeStackQ(&SQ,AQ,Mon);
-    			battle(P, &Mon,SQ,&Win);
+    			battle(P,&Mon,SQ,&Win);
     			if(Win)
     			{
       			printf("YOU WIN\n");
@@ -286,15 +288,6 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
       			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y-1,PPOS(*P).X)=PLAYERLOGO;
 				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
 				PPOS(*P).Y-=1;
-    			}
-    			else
-    			{
-    				if (HP(*P)==0)
-    				{	//StateGameOver
-    					GameOver();
-    					WinFlag=true;
-    				}
-    				// else draw
     			}
 			}
 			else
@@ -392,7 +385,10 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
 				boolean Win;
 				Queue Q;
         		StackQ SQ;
-				CreateMonster(&Mon,"MOMO",1,0);
+				if (!IsEmptyS(*Enemy))
+				{
+					Pop(Enemy,&Mon);
+				}
     			CreateEmpty(&Q,40);
     			CreateEmptySQ(&SQ);
     			makeStackQ(&SQ,AQ,Mon);
@@ -407,15 +403,6 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
       		MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y+1,PPOS(*P).X)=PLAYERLOGO;
 			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
 			PPOS(*P).Y+=1;
-    			}
-    			else
-    			{
-    				if (HP(*P)==0)
-    				{	//StateGameOver
-    					GameOver();
-    					WinFlag=true;
-    				}
-    				// else draw
     			}
 			}
 			else
@@ -508,7 +495,10 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
 				boolean Win;
 				Queue Q;
         		StackQ SQ;
-				CreateMonster(&Mon,"MOMO",1,0);
+				if (!IsEmptyS(*Enemy))
+				{
+					Pop(Enemy,&Mon);
+				}
     			CreateEmpty(&Q,40);
     			CreateEmptySQ(&SQ);
     			makeStackQ(&SQ,AQ,Mon);
@@ -523,15 +513,6 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
       			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X-1)=PLAYERLOGO;
 			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
 			PPOS(*P).X-=1;
-    			}
-    			else
-    			{
-    				if (HP(*P)==0)
-    				{	//StateGameOver
-    					GameOver();
-    					WinFlag=true;
-    				}
-    				// else draw
     			}
 			}
 			else {
@@ -625,7 +606,10 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
 				boolean Win;
 				Queue Q;
         		StackQ SQ;
-				CreateMonster(&Mon,"MOMO",1,0);
+				if (!IsEmptyS(*Enemy))
+				{
+					Pop(Enemy,&Mon);
+				}
     			CreateEmpty(&Q,40);
     			CreateEmptySQ(&SQ);
     			makeStackQ(&SQ,AQ,Mon);
@@ -638,17 +622,8 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
       				LevelUp(P,ST);
 
       			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X+1)=PLAYERLOGO;
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-				PPOS(*P).X+=1;
-    			}
-    			else
-    			{
-    				if (HP(*P)==0)
-    				{	//StateGameOver
-    					GameOver();
-    					WinFlag=true;
-    				}
-    				// else draw
+			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
+			PPOS(*P).X+=1;
     			}
 			}
 			else{
@@ -700,12 +675,15 @@ int main()
 	ArQ AQ;
 	LoadAksiEnemy(&AQ);
 	srand(time(NULL));
+	StackM SEnemy;
 	
 	//Algoritma
 	clear();
 
 	//Load File Eksternal
 	LoadPlayer(&T,"FileEksternal/FileKarakter.txt");
+	CreateMap(&Mp);
+	LoadEnemy(&SEnemy,"FileEksternal/Enemy.txt");
 	//LoadMap(&M,&P,&TP);
 
 	printf(COLOR_GREEN"PLEASE WAIT A MINUTE....\n");
@@ -754,7 +732,7 @@ int main()
 
 
 				while (!WinFlag)
-					Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ);
+					Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ,&SEnemy);
 
 				//CetakPair(TP);
 
