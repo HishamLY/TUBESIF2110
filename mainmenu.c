@@ -83,21 +83,40 @@ void InterfaceAwal()
 	printf("\n");
 	printf(COLOR_YELLOW"	✄▒█▀▀█ ▒█▀▀█ ▀█▀ ▒█▀▀█ ▒█░▒█ ▀▀█▀▀ 　 ▒█▀▀▀█ ▒█▀▀▀█ ▒█░▒█ ▒█░░░ ▒█▀▀▀█ \n");
 	printf("	✄▒█▀▀▄ ▒█▄▄▀ ▒█░ ▒█░▄▄ ▒█▀▀█ ░▒█░░ 　 ░▀▀▀▄▄ ▒█░░▒█ ▒█░▒█ ▒█░░░ ░▀▀▀▄▄ \n");
-	printf("	✄▒█▄▄█ ▒█░▒█ ▄█▄ ▒█▄▄█ ▒█░▒█ ░▒█░░ 　 ▒█▄▄▄█ ▒█▄▄▄█ ░▀▄▄▀ ▒█▄▄█ ▒█▄▄▄█ \n");
+	printf("	✄▒█▄▄█ ▒█░▒█ ▄█▄ ▒█▄▄█ ▒█░▒█ ░▒█░░ 　 ▒█▄▄▄█ ▒█▄▄▄█ ░▀▄▄▀ ▒█▄▄█ ▒█▄▄▄█ \n"COLOR_RESET);
 
 	printf("\n");
 	printf("\n");
 	printf("\n");
 	printf("\n");
-	printf("                           _____________________________ \n");
-	printf("                           |                           | \n");
-	printf("                           |      1. NEW GAME          | \n");
-	printf("                           |      2. START GAME        |\n");
-	printf("                           |      3. LOAD GAME         | \n");
-	printf("                           |      4. EXIT              | \n");
-	printf("                           |                           | \n");
-	printf("                           |___________________________| \n"COLOR_RESET);
+	printf(COLOR_BLUE"                             ╔═══════════════════════════╗");printf("\n");
+	printf("                             ║                           ║ \n");
+	printf("                             ║      1. NEW GAME          ║ \n");
+	printf("                             ║                           ║ \n");
+	printf("                             ║      2. START GAME        ║\n");
+	printf("                             ║                           ║ \n");
+	printf("                             ║      3. LOAD GAME         ║ \n");
+	printf("                             ║                           ║ \n");
+	printf("                             ║      4. EXIT              ║ \n");
+	printf("                             ║                           ║\n");
+	printf("                             ╚═══════════════════════════╝"COLOR_RESET);printf("\n");
+}
 
+void InstructionMain()
+/*	I.S.
+	F.S. */
+{
+	printf("\n");
+	printf("\n");
+	printf("                             ╔══════════════════════════════════════════════╗");printf("\n");
+	printf("                             ║                                              ║ \n");
+	printf("                             ║ > GU : GO UP         > SKILL : DISPLAY SKILL ║ \n");
+	printf("                             ║ > GD : GO DOWN       > SAVE  : SAVE GAME     ║ \n");
+	printf("                             ║ > GR : GO RIGHT      > LOAD  : LOAD GAME     ║ \n");
+	printf("                             ║ > GL : GO LEFT       > EXIT  : EXIT GAME     ║ \n");
+	printf("                             ║                                              ║ \n");
+	printf("                             ╚══════════════════════════════════════════════╝"COLOR_RESET);printf("\n");
+	printf("\n");
 }
 
 void Credit();
