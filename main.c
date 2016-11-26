@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <time.h>
 
 //Modul ADT, Mesin, serta modul lainnya yang digunakan
 #include "mainmenu.h"
@@ -33,48 +34,50 @@ void clrscr()
 }
 void movequeue(Queue *Q)
 {
+  int i, a;
     //Queue Q;
     // CreateEmpty(Q,40);
-    Add(Q,'F');
-    Add(Q,'A');
-    Add(Q,'B');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'F');
-    Add(Q,'B');
-    Add(Q,'B');
-    Add(Q,'F');
-    Add(Q,'B');
-    Add(Q,'A');
-    Add(Q,'B');
-    Add(Q,'F');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'F');
-    Add(Q,'B');
-    Add(Q,'F');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'F');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'F');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'B');
-    Add(Q,'A');
-    Add(Q,'B');
-    Add(Q,'A');
-    Add(Q,'A');
-    Add(Q,'B');
-    Add(Q,'F');
-    Add(Q,'B');
-    Add(Q,'B');
-    Add(Q,'A');
+    i=0;
+
+    while(i!=4)
+    {
+      a=rand()%3;
+      if (a==1) {
+      Add(Q,'F');
+      }
+      else
+      {
+        if (a==2) {
+        Add(Q,'A');
+        }
+        else
+        {
+          Add(Q,'B');
+        }
+      }
+      i=i+1;
+    }
+
+}
+
+void makeStackQ(StackQ *S,ArQ AQ,Monster M)
+{
+  infotype_SQ X;
+  int i;
+  i=0;
+  int a,B;
+  CreateEmpty(&X,5);
+  if (Boss(M)==1)
+  	B=20;
+  else B=10;
+
+  while(i!=B)
+  {
+    //movequeue(&X);
+    a=rand()%10;
+    PushSQ(S,Que_i(AQ,a));
+    i=i+1;
+  }
 }
 void Load_Map(Maps *M,Player *P,TabPair *TP)
 {
@@ -169,7 +172,7 @@ void TulisMap(Maps M,Player P)
 }
 }
 
-void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST)
+void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
 {
 	clrscr();
 	char A,B;
@@ -264,19 +267,22 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST)
 			}
 			else if ( chr_dest=='E' ) //Cek Enemy
 			{
-				//Masuk SKEMA BATTLE
 				Monster Mon;
 				boolean Win;
 				Queue Q;
-        StackQ SQ;
-				CreateMonster(&Mon,"MOrA",1,0);
+        		StackQ SQ;
+				CreateMonster(&Mon,"MOMO",1,0);
     			CreateEmpty(&Q,40);
-    			movequeue(&Q);
+    			CreateEmptySQ(&SQ);
+    			makeStackQ(&SQ,AQ,Mon);
     			battle(P, &Mon,SQ,&Win);
     			if(Win)
     			{
-      			printf("YOU WIN");
-      			printf("\n");
+      			printf("YOU WIN\n");
+      			EXP(*P)+=EXP(Mon);
+      			if (EXP(*P)>=MaxEXP(*P))
+      				LevelUp(P,ST);     			
+      		
       			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y-1,PPOS(*P).X)=PLAYERLOGO;
 				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
 				PPOS(*P).Y-=1;
@@ -373,21 +379,23 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST)
 			}
 			else if ( chr_dest=='E' ) //Cek Enemy
 			{
-				//Masuk SKEMA BATTLE
 				Monster Mon;
 				boolean Win;
 				Queue Q;
-        StackQ SQ;
+        		StackQ SQ;
 				CreateMonster(&Mon,"MOMO",1,0);
     			CreateEmpty(&Q,40);
-    			movequeue(&Q);
+    			CreateEmptySQ(&SQ);
+    			makeStackQ(&SQ,AQ,Mon);
     			battle(P, &Mon,SQ,&Win);
     			if(Win)
     			{
-      			printf("YOU WIN");
-      			printf("\n");
+      			printf("YOU WIN\n");
+      			EXP(*P)+=EXP(Mon);
+      			if (EXP(*P)>=MaxEXP(*P))
+      				LevelUp(P,ST);
 
-      			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y+1,PPOS(*P).X)=PLAYERLOGO;
+      		MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y+1,PPOS(*P).X)=PLAYERLOGO;
 			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
 			PPOS(*P).Y+=1;
     			}
@@ -478,19 +486,21 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST)
 			}
 			else if ( chr_dest=='E' ) //Cek Enemy
 			{
-				//Masuk SKEMA BATTLE
 				Monster Mon;
 				boolean Win;
 				Queue Q;
-        StackQ SQ;
+        		StackQ SQ;
 				CreateMonster(&Mon,"MOMO",1,0);
     			CreateEmpty(&Q,40);
-    			movequeue(&Q);
+    			CreateEmptySQ(&SQ);
+    			makeStackQ(&SQ,AQ,Mon);
     			battle(P, &Mon,SQ,&Win);
     			if(Win)
     			{
-      			printf("YOU WIN");
-      			printf("\n");
+      			printf("YOU WIN\n");
+      			EXP(*P)+=EXP(Mon);
+      			if (EXP(*P)>=MaxEXP(*P))
+      				LevelUp(P,ST);
 
       			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X-1)=PLAYERLOGO;
 			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
@@ -587,15 +597,18 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST)
 				Monster Mon;
 				boolean Win;
 				Queue Q;
-        StackQ SQ;
+        		StackQ SQ;
 				CreateMonster(&Mon,"MOMO",1,0);
     			CreateEmpty(&Q,40);
-    			movequeue(&Q);
+    			CreateEmptySQ(&SQ);
+    			makeStackQ(&SQ,AQ,Mon);
     			battle(P, &Mon,SQ,&Win);
     			if(Win)
     			{
-      			printf("YOU WIN");
-      			printf("\n");
+      			printf("YOU WIN\n");
+      			EXP(*P)+=EXP(Mon);
+      			if (EXP(*P)>=MaxEXP(*P))
+      				LevelUp(P,ST);
 
       			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X+1)=PLAYERLOGO;
 			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
@@ -648,8 +661,10 @@ int main()
 	Player P;
 	boolean daftar = false, Exit;;
 	int i;
-
-
+	ArQ AQ;
+	LoadAksiEnemy(&AQ);
+	srand(time(NULL));
+	
 	//Algoritma
 	clear();
 
@@ -703,7 +718,7 @@ int main()
 
 
 				while (!WinFlag)
-					Mode_Jelajah(&Mp,&P,&TP,&Skilltree);
+					Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ);
 
 				//CetakPair(TP);
 

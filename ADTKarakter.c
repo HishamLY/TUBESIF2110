@@ -1,5 +1,5 @@
 // Nama File 	: ADTKarakter.c
-// Nama/NIM	: Hisham Lazuardi Yusuf/13515069
+// Nama/NIM		: Hisham Lazuardi Yusuf/13515069
 
 #include "ADTKarakter.h"
 
