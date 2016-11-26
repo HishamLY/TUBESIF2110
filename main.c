@@ -185,6 +185,7 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Ene
 
 	TulisMap(*M,*P);
   printf("╚═════════════════════════════════════════════════════════════════════════════════════════════════╝");printf("\n");
+	InstructionMain();
 	printf("%s\n",MSG); CopyKata(" ",MSG);
 	printf("COMMAND : "); scanf("%s",S);
 
