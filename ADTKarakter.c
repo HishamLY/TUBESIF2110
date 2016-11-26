@@ -27,9 +27,9 @@ jika boss == 0 maka hanya terbentuk monster biasa */
 		CopyKata(Name,Name(*E));
 		Level(*E) = level;
 		HP(*E) = 30+10*level;
-		STR(*E) = 3+2*level;
-		DEF(*E) = 3+1*level;
-		EXP(*E) = 30+30*level;
+		STR(*E) = 5+3*level;
+		DEF(*E) = 4+3*level;
+		EXP(*E) = 30+10*level;
 		Boss(*E) = boss;
 	} else
 	{
@@ -55,10 +55,10 @@ void LevelUp (Player *P1,BinTree *ST)
 		Level(*P1)++;
 		MaxHP(*P1) += (10 + 5*Level(*P1));
 		HP(*P1) = MaxHP(*P1);
-		STR(*P1) += (3 + 2*Level(*P1));
-		DEF(*P1) += (4 + 1*Level(*P1));
+		STR(*P1) += (2 + 2*Level(*P1));
+		DEF(*P1) += (3 + 1*Level(*P1));
 		EXP(*P1) = EXP(*P1) % MaxEXP(*P1);
-		MaxEXP(*P1) += (10*Level(*P1));
+		MaxEXP(*P1) += (20*Level(*P1));
 		InterfaceSkill(ST,P1);
 	}
 }
