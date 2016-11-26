@@ -14,7 +14,7 @@ void RandomMap (Map *M)
 	int r;
 	int r1,r2;
 
-	(*M).Kol = 25;
+	(*M).Kol = 20;
 	(*M).Brs = 20;
 
 	for (i=0;i<=((*M).Brs-1);i++)
@@ -134,7 +134,7 @@ void CreateLinkSource (Maps * MS, int N)
 	(*MS).nMap = N;
 
 	found = false;
-	i = 22;
+	i = 17;
 	while (i>=0&&!found)
 	{
 		j = 0;
@@ -143,12 +143,12 @@ void CreateLinkSource (Maps * MS, int N)
 			if ((*MS).M[0].MM[j][i]==' ')
 			{
 				found = true;
-				for (l=i;l<=24;l++)
+				for (l=i;l<=19;l++)
 				{
-					if (l<24)
+					if (l<19)
 					{
 						(*MS).M[0].MM[j][l] = ' ';
-					} else if (l==24)
+					} else if (l==19)
 					{
 						(*MS).M[0].MM[j][l] = '0';
 					}
@@ -160,7 +160,7 @@ void CreateLinkSource (Maps * MS, int N)
 	}
 
 	found = false;
-	i = 22;
+	i = 17;
 	while (i>=0&&!found)
 	{
 		j = 0;
@@ -169,12 +169,12 @@ void CreateLinkSource (Maps * MS, int N)
 			if ((*MS).M[1].MM[j][i]==' ')
 			{
 				found = true;
-				for (l=i;l<=24;l++)
+				for (l=i;l<=19;l++)
 				{
-					if (l<24)
+					if (l<19)
 					{
 						(*MS).M[1].MM[j][l] = ' ';
-					} else if (l==24)
+					} else if (l==19)
 					{
 						(*MS).M[1].MM[j][l] = '1';
 					}
@@ -186,7 +186,7 @@ void CreateLinkSource (Maps * MS, int N)
 	}
 
 	found = false;
-	i = 22;
+	i = 17;
 	while (i>=0&&!found)
 	{
 		j = 0;
@@ -195,12 +195,12 @@ void CreateLinkSource (Maps * MS, int N)
 			if ((*MS).M[2].MM[j][i]==' ')
 			{
 				found = true;
-				for (l=i;l<=24;l++)
+				for (l=i;l<=19;l++)
 				{
-					if (l<24)
+					if (l<19)
 					{
 						(*MS).M[2].MM[j][l] = ' ';
-					} else if (l==24)
+					} else if (l==19)
 					{
 						(*MS).M[2].MM[j][l] = '2';
 					}
@@ -216,7 +216,7 @@ void CreateLinkSource (Maps * MS, int N)
 	while (i>=0&&!found)
 	{
 		j = 0;
-		while (j<=24&&!found)
+		while (j<=19&&!found)
 		{
 			if ((*MS).M[2].MM[i][j]==' ')
 			{
@@ -238,7 +238,7 @@ void CreateLinkSource (Maps * MS, int N)
 	}
 
 	found = false;
-	i = 22;
+	i = 17;
 	while (i>=0&&!found)
 	{
 		j = 0;
@@ -247,12 +247,12 @@ void CreateLinkSource (Maps * MS, int N)
 			if ((*MS).M[3].MM[j][i]==' ')
 			{
 				found = true;
-				for (l=i;l<=24;l++)
+				for (l=i;l<=19;l++)
 				{
-					if (l<24)
+					if (l<19)
 					{
 						(*MS).M[3].MM[j][l] = ' ';
-					} else if (l==24)
+					} else if (l==19)
 					{
 						(*MS).M[3].MM[j][l] = '4';
 					}
@@ -268,7 +268,7 @@ void CreateLinkSource (Maps * MS, int N)
 	while (i>=0&&!found)
 	{
 		j = 0;
-		while (j<=24&&!found)
+		while (j<=19&&!found)
 		{
 			if ((*MS).M[3].MM[i][j]==' ')
 			{
@@ -291,7 +291,7 @@ void CreateLinkSource (Maps * MS, int N)
 
 
 	found = false;
-	i = 22;
+	i = 17;
 	while (i>=0&&!found)
 	{
 		j = 0;
@@ -300,9 +300,9 @@ void CreateLinkSource (Maps * MS, int N)
 			if ((*MS).M[4].MM[j][i]==' ')
 			{
 				found = true;
-				for (l=i;l>=24;l++)
+				for (l=i;l<=19;l++)
 				{
-					if (l<24)
+					if (l<19)
 					{
 						(*MS).M[4].MM[j][l] = ' ';
 					} else
@@ -330,7 +330,7 @@ void CreateLinkDest (Maps * MS, int N)
 
 	found = false;
 	i = 2;
-	while (i<=24&&!found)
+	while (i<=19&&!found)
 	{
 		j = 0;
 		while (j<=19&&!found)
@@ -356,7 +356,7 @@ void CreateLinkDest (Maps * MS, int N)
 
 	found = false;
 	i = 2;
-	while (i<=24&&!found)
+	while (i<=19&&!found)
 	{
 		j = 0;
 		while (j<=19&&!found)
@@ -382,7 +382,7 @@ void CreateLinkDest (Maps * MS, int N)
 
 	found = false;
 	i = 2;
-	while (i<=24&&!found)
+	while (i<=19&&!found)
 	{
 		j = 0;
 		while (j<=19&&!found)
@@ -437,7 +437,7 @@ void CreateLinkDest (Maps * MS, int N)
 	while (i<=19&&!found)
 	{
 		j = 0;
-		while (j<=24&&!found)
+		while (j<=19&&!found)
 		{
 			if ((*MS).M[4].MM[i][j]==' ')
 			{
@@ -463,7 +463,7 @@ void CreateLinkDest (Maps * MS, int N)
 	while (i<=19&&!found)
 	{
 		j = 0;
-		while (j<=24&&!found)
+		while (j<=19&&!found)
 		{
 			if ((*MS).M[5].MM[i][j]==' ')
 			{
@@ -486,7 +486,7 @@ void CreateLinkDest (Maps * MS, int N)
 
 	found = false;
 	i = 2;
-	while (i<=24&&!found)
+	while (i<=19&&!found)
 	{
 		j = 0;
 		while (j<=19&&!found)
@@ -543,12 +543,22 @@ void CreateMap(Maps * MapJelajah)
 	RandomMap(&(*MapJelajah).M[4]);
 	RandomMap(&(*MapJelajah).M[5]);
 
-	// Start Point
-	do {
-		s1 = rand() % M;
-		s2 = rand() % N;
-	} while ((*MapJelajah).M[0].MM[s1][s2]!=' ');
-	(*MapJelajah).M[0].MM[s1][s2] = 'P';
+	found = false;
+	i = 2;
+	while (i<=19&&!found)
+	{
+		j = 0;
+		while (j<=19&&!found)
+		{
+			if ((*MapJelajah).M[1].MM[j][i]==' ')
+			{
+				found = true;
+				(*MapJelajah).M[0].MM[j][i] = 'P';
+			}
+			j++;	
+		}
+		i++;
+	}
 
 	do {
 		s1 = rand() % M;
@@ -565,7 +575,7 @@ void CreateMap(Maps * MapJelajah)
 	{
 		for (j=0;j<=19;j++)
 		{
-			for (k=0;k<=24;k++)
+			for (k=0;k<=19;k++)
 			{
 				fprintf(fileout, "%c", (*MapJelajah).M[i].MM[j][k]);
 			}
@@ -574,7 +584,14 @@ void CreateMap(Maps * MapJelajah)
 				fprintf(fileout,"\n");
 			} else
 			{
-				fprintf(fileout,",\n");
+				if (i!=5)
+				{
+					fprintf(fileout,",\n");	
+				} else
+				{
+					fprintf(fileout, ".\n");
+				}
+				
 			}
 		}
 	}
