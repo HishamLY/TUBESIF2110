@@ -41,6 +41,10 @@ void InterfaceAwal();
 /* I.S Tampilan terminal kosong
    F.S Terbentuk tampilan seperti isi pada program */
 
+void InstructionMain();
+/*	I.S.
+	F.S. */
+
 void Credit();
 /* I.S. Tampilan terminal masih dalam mode Menang
    F.S. Terbentuk tampilan Credit pada terminal */
