@@ -67,11 +67,7 @@ void Heal(Player *P1)
 /* I.S. Health Point Player sembarang */
 /* F.S. Health Point Player bertambah sebanyak 20 */
 {
-	HP(*P1) += 20;
-	if (HP(*P1)>MaxHP(*P1))
-	{
-		HP(*P1) = MaxHP(*P1);
-	}
+	HP(*P1) = MaxHP(*P1);
 }
 
 void SavePlayer (TabKarakter P, char * NamaFile)
