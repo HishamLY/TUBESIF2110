@@ -164,8 +164,24 @@ F.S. Menampilkan pesan battle, memperbarui statistik monster dan player*/
     {
         if (MovEnemy=='A')
         {
+          if ((2*STR(*P)-DEF(*M))>0)
+      		{
+      			HP(*M)=HP(*M)-(2*STR(*P)-DEF(*M));
+      		}
+          if(HP(*M)<0)
+          {
+            HP(*M)=0;
+          }
+          if ((2*STR(*M)-DEF(*P))>0)
+      		{
+      			HP(*P)=HP(*P)-(2*STR(*M)-DEF(*P));
+      		}
+          if(HP(*P)<0)
+          {
+            HP(*P)=0;
+          }
           PrintInterfaceBattle(P, M, Q, Round, Move, N);
-          printf("YOU AND YOUR ENEMY USE THE SAME MOVE\n");
+          printf("YOU AND YOUR ENEMY ATTACKED EACH OTHER!\n");
         }
         else if (MovEnemy=='B')
         {
