@@ -142,7 +142,6 @@ void Load_Map(Maps *M,Player *P,TabPair *TP)
 
 
 }
-
 void TulisMap(Maps M,Player P)
 {
 	//printf("PLAYER %d %d %d\n",PPOS_N(P),PPOS_X(P),PPOS_Y(P));
@@ -171,9 +170,119 @@ void TulisMap(Maps M,Player P)
 }
 }
 
-void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Enemy)
+void CetakPair(TabPair TP)
 {
-	clrscr();
+	for (int i=0;i<PAIR_LEN(TP);i++)
+	{
+		printf("%c = %d %d %d  - %d %d %d\n",CHR_PAIR_I(TP,i),MAP_I_Asal(TP,i),SRC_I(TP,i).X,SRC_I(TP,i).Y,MAP_I_Tujuan(TP,i),DEST_I(TP,i).X,DEST_I(TP,i).Y);
+	}
+}
+
+boolean IsOnMap (POINT P, Map M)
+{
+	return((P.X>=0)&&(P.X<M.Kol)&&(P.Y>=0)&&(P.Y<M.Brs));
+}
+
+void ChangePPOS(Maps *M,Player *P,POINT PDest)
+{
+	MAPLOC((*M),PDest.map,PDest.Y,PDest.X)=PLAYERLOGO;
+	MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
+	PPOS(*P)=MakePOINT(PDest.X,PDest.Y,PDest.map);
+}
+
+void WarpMethod(Maps *M,Player *P,POINT PWarp)
+{
+	//Lihat kalau ditaruh di atas visibel atau ga ?
+	if ((PWarp.Y-1>=0)&&(MAPLOC((*M),PWarp.map,PWarp.Y-1,PWarp.X)!='#'))
+		{
+			printf("U\n");
+			POINT PDest=MakePOINT(PWarp.X,PWarp.Y-1,PWarp.map);
+			ChangePPOS(M,P,PDest);
+			
+		}
+	else if ((PWarp.Y+1<BRS((*M),PWarp.map))&&(MAPLOC((*M),PWarp.map,PWarp.Y+1,PWarp.X)!='#'))
+	{
+		printf("B\n");
+		POINT PDest=MakePOINT(PWarp.X,PWarp.Y+1,PWarp.map);
+		ChangePPOS(M,P,PDest);
+	}
+	else if ((PWarp.X-1>=0)&&(MAPLOC((*M),PWarp.map,PWarp.Y,PWarp.X-1)!='#'))
+		{
+			POINT PDest=MakePOINT(PWarp.X-1,PWarp.Y,PWarp.map);
+			ChangePPOS(M,P,PDest);
+		}
+	else if ((PWarp.X+1<KOL((*M),PWarp.map))&&(MAPLOC((*M),PWarp.map,PWarp.Y,PWarp.X+1)!='#'))
+		{
+			printf("R\n");
+			POINT PDest=MakePOINT(PWarp.X+1,PWarp.Y,PWarp.map);
+			ChangePPOS(M,P,PDest);
+		}				
+}
+
+void Warp(Maps *M,Player *P,TabPair *TP,POINT PDest)
+{
+	char chr_dest=MAPLOC((*M),PPOS(*P).map,PDest.Y,PDest.X);
+	int id=SearchPairId(*TP,chr_dest); //pasti ketemu
+	if (EQ(SRC_I(*TP,id),PDest)) 
+		WarpMethod(M,P,DEST_I(*TP,id));
+	else if (EQ(DEST_I(*TP,id),PDest))
+			WarpMethod(M,P,SRC_I(*TP,id));
+}
+
+void BattleMethod(Maps *M,Player *P,POINT PDest,ArQ AQ,BinTree *ST)
+{
+	Monster Mon;
+	boolean Win;
+	Queue Q;
+    StackQ SQ;
+	CreateMonster(&Mon,"MOMO",1,0);
+    CreateEmpty(&Q,40);
+    CreateEmptySQ(&SQ);
+    makeStackQ(&SQ,AQ,Mon);
+
+    battle(P, &Mon,SQ,&Win);
+    if(Win)
+    {
+    	CopyKata("YOU WIN",MSG);
+      	EXP(*P)+=EXP(Mon);
+      	if (EXP(*P)>=MaxEXP(*P))
+      		LevelUp(P,ST);     			
+      	ChangePPOS(M,P,PDest);
+    }
+    else
+    {
+    	if (HP(*P)==0)
+    	{	//StateGameOver
+    		GameOver();
+    		WinFlag=true;
+    	}
+    	// else draw
+    }
+}
+
+void MoveMethod(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ,POINT PDest)
+{
+	char chr_dest=MAPLOC((*M),PPOS(*P).map,PDest.Y,PDest.X);
+	if (IsOnMap(PDest,(*M).M[PDest.map])&&(chr_dest!=PAGARLOGO)) //validasi
+	{
+		if (('0'<=chr_dest)&&(chr_dest<='9')) //Cek portal //Kasus khusus
+			Warp(M,P,TP,PDest);
+		else if (chr_dest=='M') //Cek Medicine
+		{
+			Heal(P); //Menambah HP
+			CopyKata("Got a Medicine ! HP + 20",MSG);
+			ChangePPOS(M,P,PDest);
+		}
+		else if ( chr_dest=='E' ) //Cek Enemy
+			BattleMethod(M,P,PDest,AQ,ST);
+		else
+			ChangePPOS(M,P,PDest);
+	}
+}
+
+void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
+{
+	//clrscr();
 	char A,B;
 	char S[100];
   printf("\n");
@@ -185,481 +294,49 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Ene
 
 	TulisMap(*M,*P);
   printf("╚═════════════════════════════════════════════════════════════════════════════════════════════════╝");printf("\n");
-	InstructionMain();
 	printf("%s\n",MSG); CopyKata(" ",MSG);
 	printf("COMMAND : "); scanf("%s",S);
 
 	if (IsKataSama(S,"GU"))
 	{
 		POINT PDest=MakePOINT(PPOS(*P).X,PPOS(*P).Y-1,PPOS(*P).map);
-		char chr_dest=MAPLOC((*M),PPOS(*P).map,PDest.Y,PDest.X);
-
-		if ((PDest.Y>=0)&&(chr_dest!=PAGARLOGO)) //validasi
-		{
-			if (('0'<=chr_dest)&&(chr_dest<='9')) //Cek portal //Kasus khusus
-			{
-				if (('0'<=chr_dest)&&(chr_dest<='9')) //Cek portal //Kasus khusus
-			{
-				int id=SearchPairId(*TP,chr_dest); //pasti ketemu
-				if (EQ(SRC_I(*TP,id),PDest)) /*MASIH BINGUNG*/
-				{
-						MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-
-						if ((DEST_I(*TP,id).Y-1>=0)&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y-1,DEST_I(*TP,id).X)!='#'))//Cek atas visibel
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X,DEST_I(*TP,id).Y-1,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((DEST_I(*TP,id).Y+1<=BRS(*M,DEST_I(*TP,id).map))&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y+1,SRC_I(*TP,id).X)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X,DEST_I(*TP,id).Y+1,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((DEST_I(*TP,id).X-1>=0)&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y,DEST_I(*TP,id).X-1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X-1,DEST_I(*TP,id).Y,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if ((DEST_I(*TP,id).X+1<=KOL(*M,DEST_I(*TP,id).map))&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y,SRC_I(*TP,id).X+1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X+1,DEST_I(*TP,id).Y,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-				}
-				else if (EQ(DEST_I(*TP,id),PDest))
-				{
-						MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-
-						if ((SRC_I(*TP,id).Y-1>=0)&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y-1,SRC_I(*TP,id).X)!='#'))//Cek atas visibel
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X,SRC_I(*TP,id).Y-1,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((SRC_I(*TP,id).Y+1<=BRS(*M,SRC_I(*TP,id).map))&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y+1,SRC_I(*TP,id).X)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X,SRC_I(*TP,id).Y+1,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((SRC_I(*TP,id).X-1>=0)&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y,SRC_I(*TP,id).X-1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X-1,SRC_I(*TP,id).Y,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if ((SRC_I(*TP,id).X+1<=KOL(*M,SRC_I(*TP,id).map))&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y,SRC_I(*TP,id).X+1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X+1,SRC_I(*TP,id).Y,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-				}
-			}
-			}
-			else
-			{
-
-			if (chr_dest=='M') //Cek Medicine
-			{
-				Heal(P); //Menambah HP
-				CopyKata("Got a Medicine ! HP + 20",MSG);
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y-1,PPOS(*P).X)=PLAYERLOGO;
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-				PPOS(*P).Y-=1;
-
-			}
-			else if ( chr_dest=='E' ) //Cek Enemy
-			{
-				Monster Mon;
-				boolean Win;
-				Queue Q;
-        		StackQ SQ;
-				if (!IsEmptyS(*Enemy))
-				{
-					Pop(Enemy,&Mon);
-				}
-    			CreateEmpty(&Q,40);
-    			CreateEmptySQ(&SQ);
-    			makeStackQ(&SQ,AQ,Mon);
-    			battle(P,&Mon,SQ,&Win);
-    			if(Win)
-    			{
-      			printf("YOU WIN\n");
-      			EXP(*P)+=EXP(Mon);
-      			if (EXP(*P)>=MaxEXP(*P))
-      				LevelUp(P,ST);     			
-      		
-      			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y-1,PPOS(*P).X)=PLAYERLOGO;
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-				PPOS(*P).Y-=1;
-    			}
-			}
-			else
-			{
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y-1,PPOS(*P).X)=PLAYERLOGO;
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-				PPOS(*P).Y-=1;
-			}
-
-
-
-			}
-		}
+		MoveMethod(M,P,TP,ST,AQ,PDest);
+		
 	}
 	else if (IsKataSama(S,"GD"))
 	{
 		POINT PDest=MakePOINT(PPOS(*P).X,PPOS(*P).Y+1,PPOS(*P).map);
-		char chr_dest=MAPLOC((*M),PPOS(*P).map,PDest.Y,PDest.X);
-
-		if ((PDest.Y<=BRS(*M,PPOS(*P).map))&&(chr_dest!=PAGARLOGO)) //validasi
-		{
-			if (('0'<=chr_dest)&&(chr_dest<='9')) //Cek portal //Kasus khusus
-			{
-				if (('0'<=chr_dest)&&(chr_dest<='9')) //Cek portal //Kasus khusus
-			{
-				int id=SearchPairId(*TP,chr_dest); //pasti ketemu
-				if (EQ(SRC_I(*TP,id),PDest)) /*MASIH BINGUNG*/
-				{
-						MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-
-						if ((DEST_I(*TP,id).Y-1>=0)&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y-1,DEST_I(*TP,id).X)!='#'))//Cek atas visibel
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X,DEST_I(*TP,id).Y-1,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((DEST_I(*TP,id).Y+1<=BRS(*M,DEST_I(*TP,id).map))&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y+1,SRC_I(*TP,id).X)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X,DEST_I(*TP,id).Y+1,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((DEST_I(*TP,id).X-1>=0)&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y,DEST_I(*TP,id).X-1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X-1,DEST_I(*TP,id).Y,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if ((DEST_I(*TP,id).X+1<=KOL(*M,DEST_I(*TP,id).map))&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y,SRC_I(*TP,id).X+1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X+1,DEST_I(*TP,id).Y,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-
-				}
-				else if (EQ(DEST_I(*TP,id),PDest))
-				{
-						MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-
-						if ((SRC_I(*TP,id).Y-1>=0)&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y-1,SRC_I(*TP,id).X)!='#'))//Cek atas visibel
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X,SRC_I(*TP,id).Y-1,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((SRC_I(*TP,id).Y+1<=BRS(*M,SRC_I(*TP,id).map))&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y+1,SRC_I(*TP,id).X)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X,SRC_I(*TP,id).Y+1,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((SRC_I(*TP,id).X-1>=0)&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y,SRC_I(*TP,id).X-1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X-1,SRC_I(*TP,id).Y,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if ((SRC_I(*TP,id).X+1<=KOL(*M,SRC_I(*TP,id).map))&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y,SRC_I(*TP,id).X+1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X+1,SRC_I(*TP,id).Y,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-				}
-			}
-			}
-
-			else
-			{
-
-			if (chr_dest=='M') //Cek Medicine
-			{
-				Heal(P); //Menambah HP
-				CopyKata("Got a Medicine ! HP + 20",MSG);
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y+1,PPOS(*P).X)=PLAYERLOGO;
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-				PPOS(*P).Y+=1;
-			}
-			else if ( chr_dest=='E' ) //Cek Enemy
-			{
-				Monster Mon;
-				boolean Win;
-				Queue Q;
-        		StackQ SQ;
-				if (!IsEmptyS(*Enemy))
-				{
-					Pop(Enemy,&Mon);
-				}
-    			CreateEmpty(&Q,40);
-    			CreateEmptySQ(&SQ);
-    			makeStackQ(&SQ,AQ,Mon);
-    			battle(P, &Mon,SQ,&Win);
-    			if(Win)
-    			{
-      			printf("YOU WIN\n");
-      			EXP(*P)+=EXP(Mon);
-      			if (EXP(*P)>=MaxEXP(*P))
-      				LevelUp(P,ST);
-
-      		MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y+1,PPOS(*P).X)=PLAYERLOGO;
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-			PPOS(*P).Y+=1;
-    			}
-			}
-			else
-			{
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y+1,PPOS(*P).X)=PLAYERLOGO;
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-			PPOS(*P).Y+=1;
-			}
-			}
-		}
+		MoveMethod(M,P,TP,ST,AQ,PDest);
 	}
+
 	else if (IsKataSama(S,"GL"))
 	{
 		POINT PDest=MakePOINT(PPOS(*P).X-1,PPOS(*P).Y,PPOS(*P).map);
-		char chr_dest=MAPLOC((*M),PPOS(*P).map,PDest.Y,PDest.X);
-		if ((PDest.X>=0)&&(chr_dest!=PAGARLOGO)) //validasi
-		{
-			if (('0'<=chr_dest)&&(chr_dest<='9')) //Cek portal //Kasus khusus
-			{
-				int id=SearchPairId(*TP,chr_dest); //pasti ketemu
-				if (EQ(SRC_I(*TP,id),PDest)) /*MASIH BINGUNG*/
-				{
-						MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-
-						if ((DEST_I(*TP,id).Y-1>=0)&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y-1,DEST_I(*TP,id).X)!='#'))//Cek atas visibel
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X,DEST_I(*TP,id).Y-1,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((DEST_I(*TP,id).Y+1<=BRS(*M,DEST_I(*TP,id).map))&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y+1,SRC_I(*TP,id).X)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X,DEST_I(*TP,id).Y+1,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((DEST_I(*TP,id).X-1>=0)&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y,DEST_I(*TP,id).X-1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X-1,DEST_I(*TP,id).Y,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if ((DEST_I(*TP,id).X+1<=KOL(*M,DEST_I(*TP,id).map))&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y,SRC_I(*TP,id).X+1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X+1,DEST_I(*TP,id).Y,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-
-				}
-				else if (EQ(DEST_I(*TP,id),PDest))
-				{
-
-						printf("YE\n");
-						MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-
-						if ((SRC_I(*TP,id).Y-1>=0)&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y-1,SRC_I(*TP,id).X)!='#'))//Cek atas visibel
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X,SRC_I(*TP,id).Y-1,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((SRC_I(*TP,id).Y+1<=BRS(*M,SRC_I(*TP,id).map))&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y+1,SRC_I(*TP,id).X)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X,SRC_I(*TP,id).Y+1,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((SRC_I(*TP,id).X-1>=0)&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y,SRC_I(*TP,id).X-1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X-1,SRC_I(*TP,id).Y,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if ((SRC_I(*TP,id).X+1<=KOL(*M,SRC_I(*TP,id).map))&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y,SRC_I(*TP,id).X+1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X+1,SRC_I(*TP,id).Y,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-				}
-			}
-
-			else
-			{
-
-			if (chr_dest=='M') //Cek Medicine
-			{
-				Heal(P); //Menambah HP
-				CopyKata("Got a Medicine ! HP + 20",MSG);
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X-1)=PLAYERLOGO;
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-				PPOS(*P).X-=1;
-			}
-			else if ( chr_dest=='E' ) //Cek Enemy
-			{
-				Monster Mon;
-				boolean Win;
-				Queue Q;
-        		StackQ SQ;
-				if (!IsEmptyS(*Enemy))
-				{
-					Pop(Enemy,&Mon);
-				}
-    			CreateEmpty(&Q,40);
-    			CreateEmptySQ(&SQ);
-    			makeStackQ(&SQ,AQ,Mon);
-    			battle(P, &Mon,SQ,&Win);
-    			if(Win)
-    			{
-      			printf("YOU WIN\n");
-      			EXP(*P)+=EXP(Mon);
-      			if (EXP(*P)>=MaxEXP(*P))
-      				LevelUp(P,ST);
-
-      			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X-1)=PLAYERLOGO;
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-			PPOS(*P).X-=1;
-    			}
-			}
-			else {
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X-1)=PLAYERLOGO;
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-			PPOS(*P).X-=1;
-			}
-			}
-		}
+		MoveMethod(M,P,TP,ST,AQ,PDest);
 	}
 	else if (IsKataSama(S,"GR"))
 	{
 		POINT PDest=MakePOINT(PPOS(*P).X+1,PPOS(*P).Y,PPOS(*P).map);
-		char chr_dest=MAPLOC((*M),PPOS(*P).map,PDest.Y,PDest.X);
-
-		if ((PDest.X<=KOL(*M,PPOS(*P).map))&&(chr_dest!=PAGARLOGO)) //validasi
-		{
-			if (('0'<=chr_dest)&&(chr_dest<='9')) //Cek portal //Kasus khusus
-			{
-				if (('0'<=chr_dest)&&(chr_dest<='9')) //Cek portal //Kasus khusus
-			{
-				int id=SearchPairId(*TP,chr_dest); //pasti ketemu
-				if (EQ(SRC_I(*TP,id),PDest)) /*MASIH BINGUNG*/
-				{
-						MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-
-						if ((DEST_I(*TP,id).Y-1>=0)&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y-1,DEST_I(*TP,id).X)!='#'))//Cek atas visibel
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X,DEST_I(*TP,id).Y-1,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((DEST_I(*TP,id).Y+1<=BRS(*M,DEST_I(*TP,id).map))&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y+1,SRC_I(*TP,id).X)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X,DEST_I(*TP,id).Y+1,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((DEST_I(*TP,id).X-1>=0)&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y,DEST_I(*TP,id).X-1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X-1,DEST_I(*TP,id).Y,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if ((DEST_I(*TP,id).X+1<=KOL(*M,DEST_I(*TP,id).map))&&(MAPLOC((*M),DEST_I(*TP,id).map,DEST_I(*TP,id).Y,SRC_I(*TP,id).X+1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(DEST_I(*TP,id).X+1,DEST_I(*TP,id).Y,DEST_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-
-				}
-				else if (EQ(DEST_I(*TP,id),PDest))
-				{
-						MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-
-						if ((SRC_I(*TP,id).Y-1>=0)&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y-1,SRC_I(*TP,id).X)!='#'))//Cek atas visibel
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X,SRC_I(*TP,id).Y-1,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((SRC_I(*TP,id).Y+1<=BRS(*M,SRC_I(*TP,id).map))&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y+1,SRC_I(*TP,id).X)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X,SRC_I(*TP,id).Y+1,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if((SRC_I(*TP,id).X-1>=0)&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y,SRC_I(*TP,id).X-1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X-1,SRC_I(*TP,id).Y,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-						else if ((SRC_I(*TP,id).X+1<=KOL(*M,SRC_I(*TP,id).map))&&(MAPLOC((*M),SRC_I(*TP,id).map,SRC_I(*TP,id).Y,SRC_I(*TP,id).X+1)!='#'))
-						{
-							PPOS(*P)=MakePOINT(SRC_I(*TP,id).X+1,SRC_I(*TP,id).Y,SRC_I(*TP,id).map);
-							MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PLAYERLOGO;
-						}
-				}
-			}
-			}
-			else
-			{
-
-			if (chr_dest=='M') //Cek Medicine
-			{
-				Heal(P); //Menambah HP
-				CopyKata("Got a Medicine ! HP + 20",MSG);
-				MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X+1)=PLAYERLOGO;
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-			PPOS(*P).X+=1;
-			}
-			else if ( chr_dest=='E' ) //Cek Enemy
-			{
-				//Masuk SKEMA BATTLE
-				Monster Mon;
-				boolean Win;
-				Queue Q;
-        		StackQ SQ;
-				if (!IsEmptyS(*Enemy))
-				{
-					Pop(Enemy,&Mon);
-				}
-    			CreateEmpty(&Q,40);
-    			CreateEmptySQ(&SQ);
-    			makeStackQ(&SQ,AQ,Mon);
-    			battle(P, &Mon,SQ,&Win);
-    			if(Win)
-    			{
-      			printf("YOU WIN\n");
-      			EXP(*P)+=EXP(Mon);
-      			if (EXP(*P)>=MaxEXP(*P))
-      				LevelUp(P,ST);
-
-      			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X+1)=PLAYERLOGO;
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-			PPOS(*P).X+=1;
-    			}
-			}
-			else{
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X+1)=PLAYERLOGO;
-			MAPLOC((*M),PPOS(*P).map,PPOS(*P).Y,PPOS(*P).X)=PATHLOGO;
-			PPOS(*P).X+=1; }
-			}
-		}
+		MoveMethod(M,P,TP,ST,AQ,PDest);
 	}
 	else if (IsKataSama(S,"SKILL"))
-	{
 		ShowSkill(*ST);
-	}
 	else if (IsKataSama(S,"ABCD"))
-	{
 		LevelUp(P,ST);
-	}
 	else if (IsKataSama(S,"EXIT"))
-	{
 		WinFlag=true;
-	}
+	else if (IsKataSama(S,"CP"))
+		CetakPair(*TP);
 	/*else if (IsKataSama(S,"SAVE"))
 	{
 		SavePlayer(T,"FileEksternal/FileKarakter.txt");
 	}*/
-
 }
 
-void CetakPair(TabPair TP)
-{
-	for (int i=0;i<PAIR_LEN(TP);i++)
-	{
-		printf("%c = %d %d %d  - %d %d %d\n",CHR_PAIR_I(TP,i),MAP_I_Asal(TP,i),SRC_I(TP,i).X,SRC_I(TP,i).Y,MAP_I_Tujuan(TP,i),DEST_I(TP,i).X,DEST_I(TP,i).Y);
-	}
-}
+
+
+
+
 
 int main()
 {
@@ -733,7 +410,8 @@ int main()
 
 
 				while (!WinFlag)
-					Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ,&SEnemy);
+					Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ);
+					//Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ,&SEnemy);
 
 				//CetakPair(TP);
 
