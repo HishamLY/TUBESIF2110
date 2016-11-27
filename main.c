@@ -233,11 +233,19 @@ void BattleMethod(Maps *M,Player *P,POINT PDest,ArQ AQ,BinTree *ST)
 	Monster Mon;
 	boolean Win;
 	Queue Q;
-    StackQ SQ;
-	CreateMonster(&Mon,"MOMO",1,0);
-    CreateEmpty(&Q,40);
-    CreateEmptySQ(&SQ);
-    makeStackQ(&SQ,AQ,Mon);
+    	StackQ SQ;
+	if (!IsEmptyS(*Enemy))
+	{
+		Pop(Enemy,&Mon);
+		count++;
+	}
+	clear();
+	usleep(500000);
+	printf("Enemy %s has appeared\n", Name(Mon));
+	usleep(1000000);
+    	CreateEmpty(&Q,40);
+    	CreateEmptySQ(&SQ);
+    	makeStackQ(&SQ,AQ,Mon);
 
     battle(P, &Mon,SQ,&Win);
     if(Win)
@@ -281,7 +289,7 @@ void MoveMethod(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ,POINT PDest)
 
 void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
 {
-	//clrscr();
+	clear();
 	char A,B;
 	char S[100];
   printf("\n");
@@ -293,6 +301,7 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
 
 	TulisMap(*M,*P);
   printf("╚═════════════════════════════════════════════════════════════════════════════════════════════════╝");printf("\n");
+	InstructionMain();
 	printf("%s\n",MSG); CopyKata(" ",MSG);
 	printf("COMMAND : "); scanf("%s",S);
 
@@ -359,7 +368,6 @@ int main()
 
 	//Load File Eksternal
 	LoadPlayer(&T,"FileEksternal/FileKarakter.txt");
-	CreateMap(&Mp);
 	LoadEnemy(&SEnemy,"FileEksternal/Enemy.txt");
 	//LoadMap(&M,&P,&TP);
 
@@ -398,16 +406,12 @@ int main()
 		{
 			if (daftar)
 			{
-				//SavePlayer(T,"FileEksternal/FileKarakter.txt");
+				CreateMap(&Mp);
 				TabPair TP; PAIR_LEN(TP)=0;
-
 				initSkillTree(&Skilltree);
 				CreateEmpty_Map(&Mp);
-
 				Load_Map(&Mp,&P,&TP);
-
-
-
+				clear();
 				while (!WinFlag)
 					Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ);
 					//Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ,&SEnemy);
