@@ -383,8 +383,7 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Ene
 		MoveMethod(M,P,TP,ST,AQ,PDest,Enemy);
 	}
 	else if (IsKataSama(S,"SKILL"))
-	{
-		ShowSkill(*ST);
+	{	ShowSkill(*ST);
 		sleep(4);
 	}
 	else if (IsKataSama(S,"ABCD"))
