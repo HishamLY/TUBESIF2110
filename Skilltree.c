@@ -61,11 +61,11 @@ F.S. Menulis skill sesuai no*/
     }
     if (no==7)
     {
-        printf("6. Add +50 Max HP\n");
+        printf("7. Add +8 DEF\n");
     }
     if (no==6)
     {
-        printf("7. Add +8 DEF\n");
+        printf("6. Add +50 Max HP\n");
     }
     if (no==8)
     {
@@ -104,11 +104,11 @@ boolean IsSkillLearned(BinTree T, int no)
     {
         if ((SearchTree(Left(T),no))||((SearchTree(Left(T),-no))))
         {
-            return SearchTree(Left(T),no);
+            return IsSkillLearned(Left(T),no);
         }
         else
         {
-             return SearchTree(Right(T),no);
+             return IsSkillLearned(Right(T),no);
         }
     }
 }
@@ -232,39 +232,48 @@ F.S. Menampilkan interface pengambilan skill.
  Menerima dan memvalidasi input. Mengambil skill dan mengupdate skill tree*/
  {
     int no;
+    char c;
 
-    printf("One Skill Point Available! Spend Skill Point to Learn Skill\n");
-    printf("Skill Available: \n");
-    AvailableSkill(*T);
-    /*Input dan validasi nomor skill*/
-    printf("Choose Skill (select skill number): ");
-    scanf("%d", &no);
-    while (!IsSkillAvailable(*T,no))
+    if (Level(*P1)<=9)
     {
-        printf("wrong input. Please try again.\n");
+        printf("One Skill Point Available! Spend Skill Point to Learn Skill\n");
+        printf("Skill Available: \n");
+        AvailableSkill(*T);
+        /*Input dan validasi nomor skill*/
         printf("Choose Skill (select skill number): ");
-        scanf("%d", &no);
+        scanf("%c", &c);
+        no = CharToInt(c);
+        while (!IsSkillAvailable(*T,no))
+        {
+            printf("wrong input. Please try again.\n");
+            printf("Choose Skill (select skill number): ");
+            scanf("%c", &c);
+            no = CharToInt(c);
+        }
+
+        /*Proses mendapatkan skill*/
+    
+        AmbilSkill(T,no,P1);
+        switch(no)
+        {
+            case 2 : {STR(*P1)+=5;
+                    break;}
+            case 3 : {DEF(*P1)+=5;
+                      break;}
+            case 4 : {STR(*P1)+=8;
+                    break;}
+            case 5 : {MaxHP(*P1)+=30;
+                    break;}
+            case 6 : {DEF(*P1)+=8;
+                    break;}
+            case 7 : {MaxHP(*P1)+=50;
+                     break;}
+            case 8 : {STR(*P1)+=10;
+                     break;}
+            case 9 : {DEF(*P1)+=10;
+                     break;}
     }
 
-    /*Proses mendapatkan skill*/
-    AmbilSkill(T,no,P1);
-    switch(no)
-    {
-        case 2 : {STR(*P1)+=5;
-                 break;}
-        case 3 : {DEF(*P1)+=5;
-                 break;}
-        case 4 : {STR(*P1)+=8;
-                 break;}
-        case 5 : {MaxHP(*P1)+=30;
-                 break;}
-        case 6 : {DEF(*P1)+=8;
-                 break;}
-        case 7 : {MaxHP(*P1)+=50;
-                 break;}
-        case 8 : {STR(*P1)+=10;
-                 break;}
-        case 9 : {DEF(*P1)+=10;
-                 break;}
-    } 
+    }
+    
  }
