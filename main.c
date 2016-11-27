@@ -31,61 +31,6 @@ void clrscr()
 {
     system("@cls||clear");
 }
-
-void storyopening(Player *P)
-{
-	int i;
-
-	START("FileEksternal/story.txt");
-	while(CC!='#')
-	{
-		if (CC=='/')
-		{
-			printf(".\n");
-			sleep(2);
-			ADV();
-		}
-		if (CC=='<')
-		{
-			printf("%s",Name(*P));
-		}
-		else
-		printf("%c",CC);
-		ADV();
-	}
-	printf("\n");
-		
-}	
-
-void storyending(Player *P)
-{
-	int i;
-
-	START("FileEksternal/story.txt");
-	while(CC!='#')
-	{
-		ADV();
-	}
-	ADV();
-	while(!EOP)
-	{
-		if (CC=='/')
-		{
-			printf(".\n");
-			sleep(2);
-			ADV();
-		}
-		if (CC=='<')
-		{
-			printf("%s",Name(*P));
-		}
-		else
-		printf("%c",CC);
-		ADV();
-	}
-	printf("\n");
-}
-
 void movequeue(Queue *Q)
 {
   int i, a;
@@ -205,21 +150,30 @@ void TulisMap(Maps M,Player P)
 		//printf("%d %d\n",BRS(M,n),KOL(M,n));
 	for (int i=0;i<BRS(M,n);i++)
   {
-    printf("║                                       ");
+    printf(COLOR_RESET"║                             ");
 		for (int j=0;j<KOL(M,n);j++)
 		{
 
 			if (('0'<=MAPLOC(M,n,i,j))&&(MAPLOC(M,n,i,j)<='9'))
-				printf("%c",PATHLOGO);
+				printf(COLOR_RESET"◉");
+			else if (MAPLOC(M,n,i,j)=='P')
+				printf(COLOR_RESET"P");
+			else if (MAPLOC(M,n,i,j)=='#')
+				printf(COLOR_GREEN"🌲");
+			else if (MAPLOC(M,n,i,j)=='M')
+				printf(COLOR_CYAN"M");
+			else if (MAPLOC(M,n,i,j)=='E')
+				printf(COLOR_YELLOW"E");
+			else if (MAPLOC(M,n,i,j)=='B')
+				printf(COLOR_RED"B");
 			else
 				printf("%c",MAPLOC(M,n,i,j));
+			if (j<KOL(M,n)-1)
+				printf(" ");
 
-
-			if (j==KOL(M,n)-1)
-      {}
 
 		}
-    printf("                                      ║");
+    printf(COLOR_RESET"                             ║");
     printf("\n");
 }
 }
@@ -285,31 +239,48 @@ void Warp(Maps *M,Player *P,TabPair *TP,POINT PDest)
 
 void BattleMethod(Maps *M,Player *P,POINT PDest,ArQ AQ,BinTree *ST, StackM * Enemy)
 {
+	char chr_dest=MAPLOC((*M),PPOS(*P).map,PDest.Y,PDest.X);
+
 	Monster Mon;
 	boolean Win;
 	Queue Q;
-    	StackQ SQ;
-	if (!IsEmptyS(*Enemy))
+    StackQ SQ;
+	
+	if (chr_dest =='E')
 	{
+		if (!IsEmptyS(*Enemy))
+		{
 		Pop(Enemy,&Mon);
-		count++;
+		//count++;
+		}
+	}
+	else
+	{
+		CreateMonster(&Mon,"BARIK",1,1);
 	}
 	clear();
 	usleep(500000);
 	printf("Enemy %s has appeared\n", Name(Mon));
 	usleep(1000000);
-    	CreateEmpty(&Q,40);
-    	CreateEmptySQ(&SQ);
-    	makeStackQ(&SQ,AQ,Mon);
+    
+    CreateEmptySQ(&SQ);
+    makeStackQ(&SQ,AQ,Mon);
 
     battle(P, &Mon,SQ,&Win);
     if(Win)
     {
+    	if (Boss(Mon)==0)
+    	{
     	CopyKata("YOU WIN",MSG);
       	EXP(*P)+=EXP(Mon);
       	if (EXP(*P)>=MaxEXP(*P))
       		LevelUp(P,ST);     			
       	ChangePPOS(M,P,PDest);
+      	}
+      	else
+      	{
+      		//Masuk Win Scheme
+      	}
     }
     else
     {
@@ -335,9 +306,9 @@ void MoveMethod(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ,POINT PDest, St
 			CopyKata("Got a Medicine ! Your HP is now Max again",MSG);
 			ChangePPOS(M,P,PDest);
 		}
-		else if ( chr_dest=='E' ) //Cek Enemy
+		else if ( chr_dest=='E' || chr_dest=='B') //Cek Enemy
 			BattleMethod(M,P,PDest,AQ,ST,Enemy);
-		else
+		else 
 			ChangePPOS(M,P,PDest);
 	}
 }
@@ -348,7 +319,7 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Ene
 	char A,B;
 	char S[100];
   printf("\n");
-  printf("╔══════════════════════╦══════════════╦══════════════╦══════════════╦══════════════╦══════════════╗");printf("\n");
+  printf(COLOR_RESET"╔══════════════════════╦══════════════╦══════════════╦══════════════╦══════════════╦══════════════╗");printf("\n");
   printf("║ %s%.*s ║ Level : %d%.*s ║ HP : %d/%d%.*s%.*s ║ STR : %d%.*s  ║ DEF : %d%.*s  ║ EXP : %d%.*s ║", Name(*P),(20-StrLen(Name(*P))),"                     ",Level(*P),(4-IntLen(Level(*P))),"                  ",HP(*P),MaxHP(*P),(3-IntLen(HP(*P))),"                        ",(3-IntLen(MaxHP(*P))),"                       ",STR(*P),(5-IntLen(STR(*P))),"                       ",DEF(*P),(5-IntLen(DEF(*P))),"                       ",EXP(*P),(6-IntLen(EXP(*P))),"                       ");printf("\n");
   printf("╠══════════════════════╩══════════════╩══════════════╩══════════════╩══════════════╩══════════════╣");printf("\n");
 
@@ -395,6 +366,7 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Ene
 		SavePlayer(T,"FileEksternal/FileKarakter.txt");
 	}*/
 }
+
 
 
 
@@ -467,8 +439,8 @@ int main()
 				Load_Map(&Mp,&P,&TP);
 				clear();
 				while (!WinFlag)
-					Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ);
-					//Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ,&SEnemy);
+					//Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ);
+					Mode_Jelajah(&Mp,&P,&TP,&Skilltree,AQ,&SEnemy);
 
 				//CetakPair(TP);
 
