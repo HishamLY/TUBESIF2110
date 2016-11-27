@@ -228,7 +228,7 @@ void Warp(Maps *M,Player *P,TabPair *TP,POINT PDest)
 			WarpMethod(M,P,SRC_I(*TP,id));
 }
 
-void BattleMethod(Maps *M,Player *P,POINT PDest,ArQ AQ,BinTree *ST)
+void BattleMethod(Maps *M,Player *P,POINT PDest,ArQ AQ,BinTree *ST, StackM * Enemy)
 {
 	Monster Mon;
 	boolean Win;
@@ -267,7 +267,7 @@ void BattleMethod(Maps *M,Player *P,POINT PDest,ArQ AQ,BinTree *ST)
     }
 }
 
-void MoveMethod(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ,POINT PDest)
+void MoveMethod(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ,POINT PDest, StackM * Enemy)
 {
 	char chr_dest=MAPLOC((*M),PPOS(*P).map,PDest.Y,PDest.X);
 	if (IsOnMap(PDest,(*M).M[PDest.map])&&(chr_dest!=PAGARLOGO)) //validasi
@@ -277,17 +277,17 @@ void MoveMethod(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ,POINT PDest)
 		else if (chr_dest=='M') //Cek Medicine
 		{
 			Heal(P); //Menambah HP
-			CopyKata("Got a Medicine ! HP + 20",MSG);
+			CopyKata("Got a Medicine ! Your HP is now Max again",MSG);
 			ChangePPOS(M,P,PDest);
 		}
 		else if ( chr_dest=='E' ) //Cek Enemy
-			BattleMethod(M,P,PDest,AQ,ST);
+			BattleMethod(M,P,PDest,AQ,ST,Enemy);
 		else
 			ChangePPOS(M,P,PDest);
 	}
 }
 
-void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
+void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Enemy)
 {
 	clear();
 	char A,B;
@@ -308,24 +308,24 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ)
 	if (IsKataSama(S,"GU"))
 	{
 		POINT PDest=MakePOINT(PPOS(*P).X,PPOS(*P).Y-1,PPOS(*P).map);
-		MoveMethod(M,P,TP,ST,AQ,PDest);
+		MoveMethod(M,P,TP,ST,AQ,PDest,Enemy);
 		
 	}
 	else if (IsKataSama(S,"GD"))
 	{
 		POINT PDest=MakePOINT(PPOS(*P).X,PPOS(*P).Y+1,PPOS(*P).map);
-		MoveMethod(M,P,TP,ST,AQ,PDest);
+		MoveMethod(M,P,TP,ST,AQ,PDest,Enemy);
 	}
 
 	else if (IsKataSama(S,"GL"))
 	{
 		POINT PDest=MakePOINT(PPOS(*P).X-1,PPOS(*P).Y,PPOS(*P).map);
-		MoveMethod(M,P,TP,ST,AQ,PDest);
+		MoveMethod(M,P,TP,ST,AQ,PDest,Enemy);
 	}
 	else if (IsKataSama(S,"GR"))
 	{
 		POINT PDest=MakePOINT(PPOS(*P).X+1,PPOS(*P).Y,PPOS(*P).map);
-		MoveMethod(M,P,TP,ST,AQ,PDest);
+		MoveMethod(M,P,TP,ST,AQ,PDest,Enemy);
 	}
 	else if (IsKataSama(S,"SKILL"))
 		ShowSkill(*ST);
