@@ -51,6 +51,8 @@ Prosedur akan terus meminta input karakter hingga berhasil membuat data player.
 		printf("Masukkan nama karakter yang dinginkan : (Maks 20 karakter tanpa spasi) ");
 		printf("\n> ");
 		scanf(" %s", nama);
+		if(StrLen(nama)<=20)
+		{
 		i = SearchName(*T, nama);
 		if (i == IdxUndef)
 		{
@@ -64,6 +66,12 @@ Prosedur akan terus meminta input karakter hingga berhasil membuat data player.
 		else
 		{
 			printf("Nama tersebut sudah dipakai");
+			printf("\n");
+		}
+		}
+		else
+		{
+			printf("Input maksimal 20 karakter!");
 			printf("\n");
 		}
 	}
