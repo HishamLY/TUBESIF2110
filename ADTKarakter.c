@@ -113,6 +113,7 @@ int CharToInt (char s)
 		case '7' : {return 7; break;}
 		case '8' : {return 8; break;}
 		case '9' : {return 9; break;}
+		default : {return -1; break;}
 	}
 }
 
