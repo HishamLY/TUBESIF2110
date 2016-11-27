@@ -3,6 +3,7 @@
 
 #include "bintree.h"
 #include "tipedata.h"
+#include "ADTKarakter.h"
 
 /*Definisi Skill Tree:
 -Bentuk skill tree sesuai dengan yang ada di gambar
