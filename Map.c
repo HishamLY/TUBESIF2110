@@ -550,7 +550,7 @@ void CreateMap(Maps * MapJelajah)
 		j = 0;
 		while (j<=19&&!found)
 		{
-			if ((*MapJelajah).M[1].MM[j][i]==' ')
+			if ((*MapJelajah).M[0].MM[j][i]==' ')
 			{
 				found = true;
 				(*MapJelajah).M[0].MM[j][i] = 'P';
