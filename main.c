@@ -119,7 +119,6 @@ void Load_Map(Maps *M,Player *P,TabPair *TP)
 			BRS((*M),n)=i+1;
 			KOL((*M),n)=j;
 			ADV();
-			ADV();
 			n++;
 			i=0;
 			j=0;
