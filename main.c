@@ -31,6 +31,61 @@ void clrscr()
 {
     system("@cls||clear");
 }
+
+void storyopening(Player *P)
+{
+	int i;
+
+	START("FileEksternal/story.txt");
+	while(CC!='#')
+	{
+		if (CC=='/')
+		{
+			printf(".\n");
+			sleep(2);
+			ADV();
+		}
+		if (CC=='<')
+		{
+			printf("%s",Name(*P));
+		}
+		else
+		printf("%c",CC);
+		ADV();
+	}
+	printf("\n");
+		
+}	
+
+void storyending(Player *P)
+{
+	int i;
+
+	START("FileEksternal/story.txt");
+	while(CC!='#')
+	{
+		ADV();
+	}
+	ADV();
+	while(!EOP)
+	{
+		if (CC=='/')
+		{
+			printf(".\n");
+			sleep(2);
+			ADV();
+		}
+		if (CC=='<')
+		{
+			printf("%s",Name(*P));
+		}
+		else
+		printf("%c",CC);
+		ADV();
+	}
+	printf("\n");
+}
+
 void movequeue(Queue *Q)
 {
   int i, a;
@@ -340,7 +395,6 @@ void Mode_Jelajah(Maps *M,Player *P,TabPair *TP,BinTree *ST,ArQ AQ, StackM * Ene
 		SavePlayer(T,"FileEksternal/FileKarakter.txt");
 	}*/
 }
-
 
 
 
