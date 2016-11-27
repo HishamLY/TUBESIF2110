@@ -330,7 +330,7 @@ exp dan Win=false.
       i=i+1;
     }
   }
-  if(HP(*M)==0)
+  if((HP(*M)==0)&&(HP(*P)!=0))
   {
     *Win=true;
   }
