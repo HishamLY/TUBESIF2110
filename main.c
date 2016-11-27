@@ -31,32 +31,59 @@ void clrscr()
 {
     system("@cls||clear");
 }
-void movequeue(Queue *Q)
+
+void storyopening(Player *P)
 {
-  int i, a;
-    //Queue Q;
-    // CreateEmpty(Q,40);
-    i=0;
+	int i;
 
-    while(i!=4)
-    {
-      a=rand()%3;
-      if (a==1) {
-      Add(Q,'F');
-      }
-      else
-      {
-        if (a==2) {
-        Add(Q,'A');
-        }
-        else
-        {
-          Add(Q,'B');
-        }
-      }
-      i=i+1;
-    }
+	START("FileEksternal/story.txt");
+	while(CC!='#')
+	{
+		if (CC=='/')
+		{
+			printf(".\n");
+			sleep(2);
+			ADV();
+		}
+		if (CC=='<')
+		{
+			printf("%s",Name(*P));
+		}
+		else
+		printf("%c",CC);
+		ADV();
+	}
+	printf("\n");
+		
+}	
 
+void storyending(Player *P)
+{
+	int i;
+
+	START("FileEksternal/story.txt");
+	while(CC!='#')
+	{
+		ADV();
+	}
+	ADV();
+	while(!EOP)
+	{
+		if (CC=='/')
+		{
+			printf(".\n");
+			sleep(2);
+			ADV();
+		}
+		if (CC=='<')
+		{
+			printf("%s",Name(*P));
+		}
+		else
+		printf("%c",CC);
+		ADV();
+	}
+	printf("\n");
 }
 
 void makeStackQ(StackQ *S,ArQ AQ,Monster M)
@@ -279,7 +306,9 @@ void BattleMethod(Maps *M,Player *P,POINT PDest,ArQ AQ,BinTree *ST, StackM * Ene
       	}
       	else
       	{
-      		//Masuk Win Scheme
+      		storyending(P);
+		WinFlag=true;
+		//Masuk Win Scheme
       	}
     }
     else
@@ -432,6 +461,7 @@ int main()
 		{
 			if (daftar)
 			{
+				storyopening(&P);
 				CreateMap(&Mp);
 				TabPair TP; PAIR_LEN(TP)=0;
 				initSkillTree(&Skilltree);
